@@ -176,18 +176,18 @@
   @return inspect($value);
 }
 
-@function change-separator($list, $separator: " ") {
+@function accumulate($list, $separator: " ") {
   @if is-empty($list ){
     @return "";
   } @else if length($list) == 1 {
     @return to-string(nth($list,1));
   } @else {
-    @return to-string(nth($list,1)) + $separator + change-separator(rest($list), $separator);
+    @return to-string(nth($list,1)) + $separator + accumulate(rest($list), $separator);
   }
 }
 
 @function list-to-string($list, $separator: " ") {
-  @return quote(change-separator($list, $separator));
+  @return quote(accumulate($list, $separator));
 }
 
 @function lists-to-map($key-list, $val-list, $map: ()) {
