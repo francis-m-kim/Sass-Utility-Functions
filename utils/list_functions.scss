@@ -52,18 +52,18 @@
   @return $sliced;
 }
 
-@function insert($new-item, $insert-idx, $list) {
+@function insert($list, $item, $index) {
   $newArray: ();
 
-  @if $insert-idx < 1 {
-    @return append($new-item, $list);
-  } @else if $insert-idx > length($list) {
-    @return join($list, $new-item);
+  @if $index < 1 {
+    @return join($item, $list);
+  } @else if $index > length($list) {
+    @return join($list, $item);
   }
 
   @for $idx from 1 through length($list) {
-    @if $idx == $insert-idx  {
-      $newArray: join($newArray, $new-item);
+    @if $idx == $index  {
+      $newArray: join($newArray, $item);
       $newArray: join($newArray, nth($list, $idx));
     } @else {
       $newArray: join($newArray, nth($list, $idx));
@@ -72,23 +72,23 @@
   @return $newArray;
 }
 
-@function replace($old, $new, $list, $accum: ()) {
+@function replace($list, $old, $new, $accum: ()) {
   @if is-empty($list) {
     @return $accum;
   } @else if is-list(first($list)) {
-    $subproblem: replace($old, $new, first($list), ());
+    $subproblem: replace(first($list), $old, $new, ());
     $accum: append($accum, $subproblem);
-    @return replace($old, $new, rest($list), $accum);
+    @return replace(rest($list), $old, $new, $accum);
   } @else if first($list) == $old {
     $accum: append($accum, $new);
-    @return replace($old, $new, rest($list), $accum);
+    @return replace(rest($list), $old, $new, $accum);
   } @else {
     $accum: append($accum, first($list));
-    @return replace($old, $new, rest($list), $accum);
+    @return replace(rest($list), $old, $new, $accum);
   }
 }
 
-@function remove($item, $list, $accum: ()) {
+@function remove($list, $item, $accum: ()) {
   @if is-list($item) {
     @warn "Cannot remove lists.";
     @return $list;
@@ -98,19 +98,19 @@
     @return $accum;
   } @else if is-list(first($list)) {
     @return append(
-      (remove($item, first($list), $accum)),
-      remove($item, rest($list), $accum));
+      (remove(first($list), $item, $accum)),
+      remove(rest($list), $item, $accum));
   } @else if first($list) == $item {
-    @return remove($item, rest($list), $accum);
+    @return remove(rest($list), $item, $accum);
   } @else {
     $accum: join($accum, first($list));
-    @return remove($item, rest($list), $accum);
+    @return remove(rest($list), $item, $accum);
   }
 }
 
 // remove-nth complements built in set-nth function;
 
-@function remove-nth($n, $list) {
+@function remove-nth($list, $n) {
   $filtered: ();
   @for $i from 1 through length($list) {
     @if $i != $n {
@@ -120,10 +120,10 @@
   @return $filtered;
 }
 
-@function remove-every-nth($n, $list, $start-idx: 1) {
+@function remove-every-nth($list, $n, $start: 1) {
   $filtered: ();
   $dist-from-start: 1;
-  @for $i from $start-idx through length($list) {
+  @for $i from $start through length($list) {
     @if $dist-from-start % $n != 0 {
       $filtered: join($filtered, nth($list, $i));
     }
@@ -140,7 +140,7 @@
   @return $reversed;
 }
 
-@function map($func, $list) {
+@function map($list, $func) {
   $mapped: ();
   @each $item in $list {
     $mapped: append($mapped, call($func, $item));
@@ -148,7 +148,7 @@
   @return $mapped;
 }
 
-@function filter($func, $list) {
+@function filter($list, $func) {
   $filtered: ();
   @each $item in $list {
     @if call($func, $item) {
@@ -159,12 +159,12 @@
 }
 
 
-@function reduce($list, $func, $base-val: 0) {
+@function reduce($list, $func, $base: 0) {
   @if is-empty($list) {
-    @return $base-val;
+    @return $base;
   } @else {
-    $base-val: call($func, $base-val, first($list));
-    @return reduce(rest($list), $func, $base-val);
+    $base: call($func, $base, first($list));
+    @return reduce(rest($list), $func, $base);
   }
 }
 
@@ -180,20 +180,20 @@
   @return inspect($value);
 }
 
-@function accum($list, $separator: " ") {
+@function change-separator($list, $separator: " ") {
   @if is-empty($list ){
     @return "";
   } @else if length($list) == 1 {
     @return to-string(nth($list,1));
   } @else {
-    @return to-string(nth($list,1)) + $separator + str-accum(rest($list), $separator);
+    @return to-string(nth($list,1)) + $separator + change-separator(rest($list), $separator);
   }
 }
 
 // Would call the following function 'join' but the name was already taken
 
-@function str-accum($list, $separator: " ") {
-  @return "#{accum($list, $separator)}";
+@function list-to-string($list, $separator: " ") {
+  @return quote(change-separator($list, $separator));
 }
 
 @function lists-to-map($key-list, $val-list, $map: ()) {
