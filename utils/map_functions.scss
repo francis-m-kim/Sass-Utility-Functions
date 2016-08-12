@@ -1,0 +1,42 @@
+@function is-map($object) {
+  @return type-of($object) == 'map';
+}
+
+@function map-to-list($map) {
+  $list: ();
+  @each $key, $value in $map {
+    @if is-map($value) {
+      $list: join($list, $key);
+      $list: append($list, map-to-list($value));
+    } @else {
+      $list: join($list, $key);
+      $list: join($list, $value);
+    }
+  }
+  @return $list;
+}
+
+@function map-depth($map) {
+  $max-depth: 1;
+  @if is-empty($map) {
+    @return 0;
+  }
+  @each $key, $val in $map {
+    @if is-map($val) {
+      $max-depth: max($max-depth, 1 + map-depth($val));
+    }
+  }
+  @return $max-depth;
+}
+
+@function map-deep-get($map, $get) {
+  @if map-has-key($map, $get) {
+    @return map-get($map, $get);
+  }
+  @each $key, $val in $map {
+    @if is-map($val) {
+      @return map-deep-get($val, $get);
+    }
+  }
+  @return null;
+}

@@ -1,0 +1,207 @@
+//replace and remove are janky with multi-dimensional lists
+
+@function is-list($object) {
+  @return type-of($object) == 'list';
+}
+
+@function is-empty($object) {
+  @return if(length($object) == 0, true, false);
+}
+
+@function range($start, $end, $step: 1, $inclusive: true) {
+  $range: ();
+  $idx: $start;
+  @if $inclusive {
+    @while $idx <= $end {
+      $range: append($range, $idx);
+      $idx: $idx + $step;
+    }
+  } @else {
+    @while $idx < $end {
+      $range: append($range, $idx);
+      $idx: $idx + $step;
+    }
+  }
+  @return $range;
+}
+
+@function first($list) {
+  @return nth($list, 1);
+}
+
+@function last($list) {
+  @return nth($list, length($list));
+}
+
+@function rest($list) {
+  $rest: ();
+  @if length($list) <= 1 {
+    @return $rest;
+  }
+  @for $i from 2 through length($list) {
+    $rest: join($rest, nth($list, $i));
+  }
+  @return $rest;
+}
+
+@function slice($list, $start, $length: length($list) - $start + 1) {
+  $sliced: ();
+  @for $i from $start through ($start + $length - 1) {
+    $sliced: join($sliced, nth($list, $i));
+  }
+  @return $sliced;
+}
+
+@function insert($new-item, $insert-idx, $list) {
+  $newArray: ();
+
+  @if $insert-idx < 1 {
+    @return append($new-item, $list);
+  } @else if $insert-idx > length($list) {
+    @return join($list, $new-item);
+  }
+
+  @for $idx from 1 through length($list) {
+    @if $idx == $insert-idx  {
+      $newArray: join($newArray, $new-item);
+      $newArray: join($newArray, nth($list, $idx));
+    } @else {
+      $newArray: join($newArray, nth($list, $idx));
+    }
+  }
+  @return $newArray;
+}
+
+@function replace($old, $new, $list, $accum: ()) {
+  @if is-empty($list) {
+    @return $accum;
+  } @else if is-list(first($list)) {
+    $subproblem: replace($old, $new, first($list), ());
+    $accum: append($accum, $subproblem);
+    @return replace($old, $new, rest($list), $accum);
+  } @else if first($list) == $old {
+    $accum: append($accum, $new);
+    @return replace($old, $new, rest($list), $accum);
+  } @else {
+    $accum: append($accum, first($list));
+    @return replace($old, $new, rest($list), $accum);
+  }
+}
+
+@function remove($item, $list, $accum: ()) {
+  @if is-list($item) {
+    @warn "Cannot remove lists.";
+    @return $list;
+  }
+
+  @if is-empty($list) {
+    @return $accum;
+  } @else if is-list(first($list)) {
+    @return append(
+      (remove($item, first($list), $accum)),
+      remove($item, rest($list), $accum));
+  } @else if first($list) == $item {
+    @return remove($item, rest($list), $accum);
+  } @else {
+    $accum: join($accum, first($list));
+    @return remove($item, rest($list), $accum);
+  }
+}
+
+// remove-nth complements built in set-nth function;
+
+@function remove-nth($n, $list) {
+  $filtered: ();
+  @for $i from 1 through length($list) {
+    @if $i != $n {
+      $filtered: join($filtered, nth($list, $i));
+    }
+  }
+  @return $filtered;
+}
+
+@function remove-every-nth($n, $list, $start-idx: 1) {
+  $filtered: ();
+  $dist-from-start: 1;
+  @for $i from $start-idx through length($list) {
+    @if $dist-from-start % $n != 0 {
+      $filtered: join($filtered, nth($list, $i));
+    }
+    $dist-from-start: $dist-from-start + 1;
+  }
+  @return $filtered;
+}
+
+@function reverse($list) {
+  $reversed: ();
+  @for $i from length($list) through 1 {
+    $reversed: append($reversed, nth($list, $i));
+  }
+  @return $reversed;
+}
+
+@function map($func, $list) {
+  $mapped: ();
+  @each $item in $list {
+    $mapped: append($mapped, call($func, $item));
+  }
+  @return $mapped;
+}
+
+@function filter($func, $list) {
+  $filtered: ();
+  @each $item in $list {
+    @if call($func, $item) {
+      $filtered: append($filtered, $item);
+    }
+  }
+  @return $filtered;
+}
+
+
+@function reduce($list, $func, $base-val: 0) {
+  @if is-empty($list) {
+    @return $base-val;
+  } @else {
+    $base-val: call($func, $base-val, first($list));
+    @return reduce(rest($list), $func, $base-val);
+  }
+}
+
+@function add($x, $y) {
+  @return $x + $y;
+}
+
+@function list-average($list) {
+  @return reduce($list, add) / length($list);
+}
+
+@function to-string($value) {
+  @return inspect($value);
+}
+
+@function accum($list, $separator: " ") {
+  @if is-empty($list ){
+    @return "";
+  } @else if length($list) == 1 {
+    @return to-string(nth($list,1));
+  } @else {
+    @return to-string(nth($list,1)) + $separator + str-accum(rest($list), $separator);
+  }
+}
+
+// Would call the following function 'join' but the name was already taken
+
+@function str-accum($list, $separator: " ") {
+  @return "#{accum($list, $separator)}";
+}
+
+@function lists-to-map($key-list, $val-list, $map: ()) {
+  @if is-empty($key-list) {
+    @return $map;
+  } @else {
+    $tuple: (first($key-list): first($val-list));
+    $map: map-merge($map, $tuple);
+    @return lists-to-map(rest($key-list), rest($val-list), $map);
+  }
+}

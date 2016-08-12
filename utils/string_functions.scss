@@ -1,0 +1,73 @@
+@function is-string($object) {
+  @if type-of($object) == 'string' {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+
+@function get-char($string, $idx) {
+  @if $idx < 1 or $idx > str-length($string) {
+    @return null;
+  } @else {
+    @return str-slice($string, $idx, $idx);
+  }
+}
+
+@function str-trim($string) {
+  @if get-char($string, 1) == " " {
+    $rest: str-slice($string, 2);
+    @return str-trim($rest);
+  } @else if get-char($string, str-length($string)) == " " {
+    $rest: str-slice($string, 1, str-length($string) - 1);
+    @return str-trim($rest);
+  } @else {
+    @return $string;
+  }
+}
+
+@function str-append($str1, $str2, $separator: "") {
+  $str1: str-insert($str1, $separator, str-length($str1) + 1);
+  @return str-insert($str1, $str2, str-length($str1) + 1);
+}
+
+@function str-prepend($string, $prepend, $separator: "") {
+  $prepend: str-append($prepend, $separator);
+  @return str-insert($string, $prepend, 0);
+}
+
+@function str-remove($string, $remove, $accum: "") {
+  $remove-idx: str-index($string, $remove);
+  @if $remove-idx {
+    $head: str-slice($string, 1, $remove-idx - 1);
+    $tail: str-slice($string, $remove-idx + str-length($remove));
+    $accum: str-append($accum, $head);
+    @return str-remove($tail, $remove, $accum);
+  } @else {
+    @return str-append($accum, $string);
+  }
+}
+
+@function str-replace($string, $old, $new, $accum: "") {
+  $replace-idx: str-index($string, $old);
+  @if $replace-idx {
+    $head: str-slice($string, 1, $replace-idx - 1);
+    $tail: str-slice($string, $replace-idx + str-length($old));
+    $accum: str-append(str-append($accum, $head), $new);
+    @return str-replace($tail, $old, $new, $accum);
+  } @else {
+    @return str-append($accum, $string);
+  }
+}
+
+@function str-split($string, $splitter: " ", $accum: ()) {
+  $split-index: str-index($string, $splitter);
+  @if $split-index {
+    $head: str-slice($string, 1, $split-index - 1);
+    $tail: str-slice($string, $split-index + 1);
+    $accum: append($accum, $head);
+    @return str-split($tail, $splitter, $accum);
+  } @else {
+    @return append($accum, $string);
+  }
+}

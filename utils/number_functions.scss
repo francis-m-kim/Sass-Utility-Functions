@@ -1,0 +1,38 @@
+@function is-num($object) {
+  @if type-of($object) == 'number'{
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+
+@function expt($num, $pow) {
+  @if $pow == 0 {
+    @return 1;
+  } @else if $pow > 0 {
+    @return $num * expt($num, $pow - 1);
+  } @else {
+    @return (1 / $num) * expt($num, $pow + 1);
+  }
+}
+
+@function sqr($num) {
+  @return expt($num, 2);
+}
+
+//list average can be found in list_functions.scss
+
+@function average($num1, $num2) {
+  @return ($num1 + $num2) / 2;
+}
+
+// Implementing Newton's method
+
+@function sqrt($num, $guess: 1) {
+  @if abs(sqr($guess) - $num) < .000001 {
+    @return $guess;
+  } @else {
+    $better-guess: average($guess, $num/$guess);
+    @return sqrt($num, $better-guess);
+  }
+}
