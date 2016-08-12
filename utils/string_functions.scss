@@ -6,23 +6,23 @@
   }
 }
 
-@function get-char($string, $idx) {
-  @if $idx < 1 or $idx > str-length($string) {
+@function get-char($str, $idx) {
+  @if $idx < 1 or $idx > str-length($str) {
     @return null;
   } @else {
-    @return str-slice($string, $idx, $idx);
+    @return str-slice($str, $idx, $idx);
   }
 }
 
-@function str-trim($string) {
-  @if get-char($string, 1) == " " {
-    $rest: str-slice($string, 2);
+@function str-trim($str) {
+  @if get-char($str, 1) == " " {
+    $rest: str-slice($str, 2);
     @return str-trim($rest);
-  } @else if get-char($string, str-length($string)) == " " {
-    $rest: str-slice($string, 1, str-length($string) - 1);
+  } @else if get-char($str, str-length($str)) == " " {
+    $rest: str-slice($str, 1, str-length($str) - 1);
     @return str-trim($rest);
   } @else {
-    @return $string;
+    @return $str;
   }
 }
 
@@ -31,43 +31,45 @@
   @return str-insert($str1, $str2, str-length($str1) + 1);
 }
 
-@function str-prepend($string, $prepend, $separator: "") {
-  $prepend: str-append($prepend, $separator);
-  @return str-insert($string, $prepend, 0);
+@function str-prepend($str1, $str2, $separator: "") {
+  $str2: str-append($str2, $separator);
+  @return str-insert($str1, $str2, 0);
 }
 
-@function str-remove($string, $remove, $accum: "") {
-  $remove-idx: str-index($string, $remove);
+@function str-remove($str, $remove, $accum: "") {
+  $remove-idx: str-index($str, $remove);
   @if $remove-idx {
-    $head: str-slice($string, 1, $remove-idx - 1);
-    $tail: str-slice($string, $remove-idx + str-length($remove));
+    $head: str-slice($str, 1, $remove-idx - 1);
+    $tail: str-slice($str, $remove-idx + str-length($remove));
     $accum: str-append($accum, $head);
     @return str-remove($tail, $remove, $accum);
   } @else {
-    @return str-append($accum, $string);
+    @return str-append($accum, $str);
   }
 }
 
-@function str-replace($string, $old, $new, $accum: "") {
-  $replace-idx: str-index($string, $old);
+@function str-replace($str, $old, $new, $accum: "") {
+  $replace-idx: str-index($str, $old);
   @if $replace-idx {
-    $head: str-slice($string, 1, $replace-idx - 1);
-    $tail: str-slice($string, $replace-idx + str-length($old));
+    $head: str-slice($str, 1, $replace-idx - 1);
+    $tail: str-slice($str, $replace-idx + str-length($old));
     $accum: str-append(str-append($accum, $head), $new);
     @return str-replace($tail, $old, $new, $accum);
   } @else {
-    @return str-append($accum, $string);
+    @return str-append($accum, $str);
   }
 }
 
-@function str-split($string, $splitter: " ", $accum: ()) {
-  $split-index: str-index($string, $splitter);
+@function str-split($str, $splitter: " ", $accum: ()) {
+  $split-index: str-index($str, $splitter);
   @if $split-index {
-    $head: str-slice($string, 1, $split-index - 1);
-    $tail: str-slice($string, $split-index + 1);
-    $accum: append($accum, $head);
+    $head: str-slice($str, 1, $split-index - 1);
+    $tail: str-slice($str, $split-index + 1);
+    @if $head != "" {
+      $accum: append($accum, $head);
+    }
     @return str-split($tail, $splitter, $accum);
   } @else {
-    @return append($accum, $string);
+    @return append($accum, $str);
   }
 }
