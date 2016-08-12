@@ -45,7 +45,7 @@ The list_functions.scss file includes definitions for the following functions:
 
 * `list-to-string($list, $separator: " ")`: same as `change-separator` but surrounds the result in quotes. Would have called this function "join" but the name was already taken.
 
-*. `lists-to-map($key-list, $val-list)`: returns a map whose key-value pairs are taken from `$key-list` and `$val-list`. The function returns when it runs out of keys.
+* `lists-to-map($key-list, $val-list)`: returns a map whose key-value pairs are taken from `$key-list` and `$val-list`. The function returns when it runs out of keys.
 
 
 ##Number Functions
@@ -90,4 +90,5 @@ The map_functions.scss file includes definitions for the following functions:
 * `map-deep-get($map, $get)`: Returns the value associated with a key nested arbitrarily deep within a map.
 
 
-Hope these help. Stay sassy!
+
+Hope these help. *Stay sassy!*
