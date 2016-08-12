@@ -6,8 +6,6 @@
   }
 }
 
-//list average can be found in list_functions.scss
-
 @function average($num1, $num2) {
   @return ($num1 + $num2) / 2;
 }
@@ -25,8 +23,6 @@
 @function sqr($num) {
   @return expt($num, 2);
 }
-
-// Implementing Newton's method
 
 @function sqrt($num, $guess: 1) {
   @if abs(sqr($guess) - $num) < .000001 {

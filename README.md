@@ -26,7 +26,7 @@ The list_functions.scss file includes definitions for the following functions:
 
 * `remove($list, $item)`: returns a new list with all instances of `$item` removed.
 
-* `remove-nth($list, $n)`: returns a new list with the `$n`-th item removed.
+* `remove-nth($list, $n)`: returns a new list with the `$n`-th item removed. Complements built in `set-nth` function.
 
 * `remove-every-nth($list, $n, $start: 1)`: returns a new list with every `$n`-th item removed. If optional `$start` parameter is not specified it defaults to the beginning of the list.
 
@@ -38,12 +38,12 @@ The list_functions.scss file includes definitions for the following functions:
 
 * `reduce($list, $func, $base: 0)`: reduces a list to a single value by recursively calling the function on the base value and the successive items of the list and reassigning the base value to the result. `$func` should take two arguments. Say we define `@function mult($x, $y) { @return $x * $y; }` and `$list: 1 2 3`. `reduce($list, mult, 1)` will return 6.
 
-* `list-average($list)`: takes a list of numbers and returns the average.
+* `list-average($list)`: takes a list of numbers and returns the average. A simple average function which only takes two numbers can be found in the number_functions.scss file.
 
 * `change-separator($list, $separator: " ")`: changes the separator of the list.
  `change-separator(hello world, "-")` will return `hello-world` which is of course no longer a list.
 
-* `list-to-string($list, $separator: " ")`: same as `change-separator` but surrounds the result in quotes.
+* `list-to-string($list, $separator: " ")`: same as `change-separator` but surrounds the result in quotes. Would have called this function "join" but the name was already taken.
 
 *. `lists-to-map($key-list, $val-list)`: returns a map whose key-value pairs are taken from `$key-list` and `$val-list`. The function returns when it runs out of keys.
 
@@ -89,6 +89,5 @@ The map_functions.scss file includes definitions for the following functions:
 * `map-depth($map)`: Returns the nesting depth of a map.
 * `map-deep-get($map, $get)`: Returns the value associated with a key nested arbitrarily deep within a map.
 
-##Color Functions
 
-Still to come!
+Hope these help. Stay sassy!
